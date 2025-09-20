@@ -57,6 +57,11 @@ const App = () => (
               <div className="p-6">Settings Page</div>
             </AdminLayout>
           } />
+          <Route path="/admin/users" element={
+            <AdminLayout>
+              <div className="p-6">Users Page</div>
+            </AdminLayout>
+          } />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

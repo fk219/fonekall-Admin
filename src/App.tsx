@@ -14,23 +14,54 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/admin/*" element={
+          <Route path="/admin" element={
             <AdminLayout>
-              <Routes>
-                <Route path="/" element={<AdminDashboard />} />
-                <Route path="/organizations" element={<OrganizationsPage />} />
-              </Routes>
+              <AdminDashboard />
             </AdminLayout>
           } />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/admin/organizations" element={
+            <AdminLayout>
+              <OrganizationsPage />
+            </AdminLayout>
+          } />
+          <Route path="/admin/billing" element={
+            <AdminLayout>
+              <div className="p-6">Billing & Credits Page</div>
+            </AdminLayout>
+          } />
+          <Route path="/admin/subscriptions" element={
+            <AdminLayout>
+              <div className="p-6">Subscriptions Page</div>
+            </AdminLayout>
+          } />
+          <Route path="/admin/analytics" element={
+            <AdminLayout>
+              <div className="p-6">Call Analytics Page</div>
+            </AdminLayout>
+          } />
+          <Route path="/admin/credits" element={
+            <AdminLayout>
+              <div className="p-6">Credit Management Page</div>
+            </AdminLayout>
+          } />
+          <Route path="/admin/system" element={
+            <AdminLayout>
+              <div className="p-6">System Health Page</div>
+            </AdminLayout>
+          } />
+          <Route path="/admin/settings" element={
+            <AdminLayout>
+              <div className="p-6">Settings Page</div>
+            </AdminLayout>
+          } />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      <Toaster />
+      <Sonner />
     </TooltipProvider>
   </QueryClientProvider>
 );

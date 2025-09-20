@@ -29,12 +29,10 @@ import {
 const navigation = [
   { title: "Dashboard", url: "/admin", icon: BarChart3 },
   { title: "Organizations", url: "/admin/organizations", icon: Building2 },
-  { title: "Agents", url: "/admin/agents", icon: Bot },
   { title: "Billing & Credits", url: "/admin/billing", icon: CreditCard },
   { title: "Subscriptions", url: "/admin/subscriptions", icon: Coins },
   { title: "Call Analytics", url: "/admin/analytics", icon: Phone },
-  { title: "Users", url: "/admin/users", icon: Users },
-  { title: "Knowledge Base", url: "/admin/knowledge", icon: Database },
+  { title: "Credit Management", url: "/admin/credits", icon: Coins },
 ];
 
 const systemNavigation = [
@@ -57,25 +55,25 @@ export function AdminSidebar() {
 
   const getNavCls = (path: string) =>
     isActive(path)
-      ? "bg-primary text-primary-foreground font-medium"
-      : "hover:bg-muted/50 text-muted-foreground hover:text-foreground";
+      ? "bg-gradient-primary text-primary-foreground font-medium shadow-sm"
+      : "hover:bg-sidebar-accent text-sidebar-foreground/70 hover:text-sidebar-foreground transition-all";
 
   return (
     <Sidebar
-      className={`${collapsed ? "w-16" : "w-64"} border-r border-admin-border transition-all duration-300`}
+      className={`${collapsed ? "w-16" : "w-64"} border-r border-sidebar-border transition-all duration-300`}
       collapsible="icon"
     >
-      <SidebarContent className="bg-gradient-surface">
+      <SidebarContent className="bg-sidebar">
         {/* Logo Section */}
-        <div className="p-4 border-b border-admin-border">
+        <div className="p-4 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Shield className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center shadow-elevated">
+              <Shield className="w-4 h-4 text-primary-foreground" />
             </div>
             {!collapsed && (
               <div>
-                <h2 className="text-lg font-bold text-foreground">KnightCall</h2>
-                <p className="text-xs text-muted-foreground">Admin Panel</p>
+                <h2 className="text-lg font-bold text-sidebar-foreground">KnightCall</h2>
+                <p className="text-xs text-sidebar-foreground/70">Admin Panel</p>
               </div>
             )}
           </div>
@@ -83,7 +81,7 @@ export function AdminSidebar() {
 
         {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <SidebarGroupLabel className="text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider px-2">
             Management
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -104,7 +102,7 @@ export function AdminSidebar() {
 
         {/* System Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <SidebarGroupLabel className="text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider px-2">
             System
           </SidebarGroupLabel>
           <SidebarGroupContent>

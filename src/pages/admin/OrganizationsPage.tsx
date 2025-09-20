@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, MoreHorizontal, Building2, Bot, CreditCard, Users } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Building2, Bot, CreditCard, Users, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { OrganizationDetailModal } from "@/components/admin/OrganizationDetailModal";
 
 const organizations = [
   {
@@ -82,6 +83,8 @@ const organizations = [
 
 export function OrganizationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedOrganization, setSelectedOrganization] = useState<typeof organizations[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredOrgs = organizations.filter(org =>
     org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -106,7 +109,7 @@ export function OrganizationsPage() {
       case "Enterprise":
         return "bg-primary text-primary-foreground";
       case "Professional":
-        return "bg-admin-accent text-white";
+        return "bg-gradient-accent text-white";
       case "Starter":
         return "bg-secondary text-secondary-foreground";
       default:
@@ -123,7 +126,7 @@ export function OrganizationsPage() {
             Manage all registered organizations and their subscriptions
           </p>
         </div>
-        <Button className="bg-gradient-primary hover:opacity-90">
+        <Button className="bg-gradient-primary hover:opacity-90 shadow-elevated">
           <Plus className="w-4 h-4 mr-2" />
           Add Organization
         </Button>
@@ -131,10 +134,10 @@ export function OrganizationsPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card className="bg-gradient-surface border-admin-border">
+        <Card className="bg-gradient-surface border-border shadow-elevated">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Organizations</CardTitle>
-            <Building2 className="h-4 w-4 text-admin-accent" />
+            <Building2 className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{organizations.length}</div>
@@ -143,10 +146,10 @@ export function OrganizationsPage() {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-surface border-admin-border">
+        <Card className="bg-gradient-surface border-border shadow-elevated">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Agents</CardTitle>
-            <Bot className="h-4 w-4 text-admin-accent" />
+            <Bot className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -157,10 +160,10 @@ export function OrganizationsPage() {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-surface border-admin-border">
+        <Card className="bg-gradient-surface border-border shadow-elevated">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
-            <CreditCard className="h-4 w-4 text-admin-accent" />
+            <CreditCard className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -171,10 +174,10 @@ export function OrganizationsPage() {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-surface border-admin-border">
+        <Card className="bg-gradient-surface border-border shadow-elevated">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-            <CreditCard className="h-4 w-4 text-admin-accent" />
+            <CreditCard className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$6,895</div>
@@ -186,7 +189,7 @@ export function OrganizationsPage() {
       </div>
 
       {/* Search and Filters */}
-      <Card className="bg-gradient-surface border-admin-border">
+      <Card className="bg-gradient-surface border-border shadow-elevated">
         <CardHeader>
           <CardTitle>Organizations List</CardTitle>
           <CardDescription>
@@ -221,7 +224,14 @@ export function OrganizationsPage() {
             </TableHeader>
             <TableBody>
               {filteredOrgs.map((org) => (
-                <TableRow key={org.id}>
+                <TableRow 
+                  key={org.id} 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => {
+                    setSelectedOrganization(org);
+                    setIsModalOpen(true);
+                  }}
+                >
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
@@ -250,13 +260,24 @@ export function OrganizationsPage() {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button 
+                          variant="ghost" 
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedOrganization(org);
+                          setIsModalOpen(true);
+                        }}>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
                         <DropdownMenuItem>Edit Organization</DropdownMenuItem>
                         <DropdownMenuItem>Add Credits</DropdownMenuItem>
                         <DropdownMenuItem>Manage Subscription</DropdownMenuItem>
@@ -273,6 +294,15 @@ export function OrganizationsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <OrganizationDetailModal
+        organization={selectedOrganization}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedOrganization(null);
+        }}
+      />
     </div>
   );
 }

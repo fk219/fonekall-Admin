@@ -136,7 +136,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="bg-gradient-surface border-admin-border">
+      <Card className="bg-gradient-surface border-admin-border bg-gray-50">
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
           <CardDescription>Common administrative tasks</CardDescription>

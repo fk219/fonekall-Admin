@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { AdminDashboard } from "@/pages/admin/AdminDashboard";
 import { OrganizationsPage } from "@/pages/admin/OrganizationsPage";
+import { SubscriptionsPage } from "@/pages/admin/SubscriptionsPage";
 
 const queryClient = new QueryClient();
 
@@ -27,14 +28,9 @@ const App = () => (
               <OrganizationsPage />
             </AdminLayout>
           } />
-          <Route path="/admin/billing" element={
-            <AdminLayout>
-              <div className="p-6">Billing & Credits Page</div>
-            </AdminLayout>
-          } />
           <Route path="/admin/subscriptions" element={
             <AdminLayout>
-              <div className="p-6">Subscriptions Page</div>
+              <SubscriptionsPage />
             </AdminLayout>
           } />
           <Route path="/admin/analytics" element={

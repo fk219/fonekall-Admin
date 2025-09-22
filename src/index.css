@@ -14,7 +14,7 @@ All colors MUST be HSL.
 
     /* Clean card system */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215.4 16.3% 25%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
@@ -24,15 +24,15 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 100%;
 
     /* Soft secondary system */
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
+    --secondary: 210 40% 94%;
+    --secondary-foreground: 215.4 16.3% 25%;
 
     /* Refined muted colors */
     --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* Vibrant accent system */
-    --accent: 262 90% 50%;
+    /* Greenish accent system */
+    --accent: 142 71% 45%;
     --accent-foreground: 0 0% 100%;
 
     /* Enhanced status colors */
@@ -58,9 +58,9 @@ All colors MUST be HSL.
     --admin-accent-muted: 262 50% 35%;
 
     /* Modern gradients with depth */
-    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(262 90% 50%));
+    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(142 71% 45%));
     --gradient-surface: linear-gradient(135deg, hsl(224 71% 6%), hsl(224 71% 8%));
-    --gradient-accent: linear-gradient(135deg, hsl(262 90% 50%), hsl(221 83% 53%));
+    --gradient-accent: linear-gradient(135deg, hsl(142 71% 45%), hsl(221 83% 53%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 40% 98%));
     --shadow-elevated: 0 25px 50px -12px hsl(221 83% 53% / 0.25);
     --shadow-soft: 0 4px 6px -1px hsl(221 83% 53% / 0.1);
@@ -99,7 +99,7 @@ All colors MUST be HSL.
     --muted: 215 28% 17%;
     --muted-foreground: 217.9 10.6% 64.9%;
 
-    --accent: 221 83% 53%;
+    --accent: 142 71% 45%;
     --accent-foreground: 210 40% 98%;
 
     /* Enhanced dark mode status colors */
@@ -124,9 +124,9 @@ All colors MUST be HSL.
     --admin-accent-muted: 262 50% 35%;
 
     /* Vibrant dark gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(262 90% 50%), hsl(221 83% 53%));
+    --gradient-primary: linear-gradient(135deg, hsl(142 71% 45%), hsl(221 83% 53%));
     --gradient-surface: linear-gradient(135deg, hsl(224 71% 6%), hsl(224 71% 8%));
-    --gradient-accent: linear-gradient(135deg, hsl(262 90% 50%), hsl(221 83% 53%));
+    --gradient-accent: linear-gradient(135deg, hsl(142 71% 45%), hsl(221 83% 53%));
     --gradient-card: linear-gradient(145deg, hsl(224 71% 6%), hsl(224 71% 8%));
     --shadow-elevated: 0 25px 50px -12px hsl(262 90% 50% / 0.25);
     --shadow-soft: 0 4px 6px -1px hsl(262 90% 50% / 0.1);

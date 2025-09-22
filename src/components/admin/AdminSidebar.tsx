@@ -29,8 +29,7 @@ import {
 const navigation = [
   { title: "Dashboard", url: "/admin", icon: BarChart3 },
   { title: "Organizations", url: "/admin/organizations", icon: Building2 },
-  { title: "Billing & Credits", url: "/admin/billing", icon: CreditCard },
-  { title: "Subscriptions", url: "/admin/subscriptions", icon: Coins },
+  { title: "Subscriptions & Credits", url: "/admin/subscriptions", icon: CreditCard },
   { title: "Call Analytics", url: "/admin/analytics", icon: Phone },
   { title: "Credit Management", url: "/admin/credits", icon: Coins },
 ];

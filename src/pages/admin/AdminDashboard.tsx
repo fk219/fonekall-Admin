@@ -4,10 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-
 export function AdminDashboard() {
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
         <p className="text-muted-foreground">
@@ -17,43 +15,15 @@ export function AdminDashboard() {
 
       {/* Key Metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          title="Total Organizations"
-          value={247}
-          change="+12%"
-          changeType="positive"
-          icon={Building2}
-          description="from last month"
-        />
-        <MetricCard
-          title="Active Agents"
-          value={1834}
-          change="+23%"
-          changeType="positive"
-          icon={Bot}
-          description="deployed agents"
-        />
-        <MetricCard
-          title="Monthly Revenue"
-          value="$48,392"
-          change="+8%"
-          changeType="positive"
-          icon={DollarSign}
-          description="from last month"
-        />
-        <MetricCard
-          title="Total Calls Today"
-          value={12847}
-          change="+156"
-          changeType="positive"
-          icon={Phone}
-          description="vs yesterday"
-        />
+        <MetricCard title="Total Organizations" value={247} change="+12%" changeType="positive" icon={Building2} description="from last month" />
+        <MetricCard title="Active Agents" value={1834} change="+23%" changeType="positive" icon={Bot} description="deployed agents" />
+        <MetricCard title="Monthly Revenue" value="$48,392" change="+8%" changeType="positive" icon={DollarSign} description="from last month" />
+        <MetricCard title="Total Calls Today" value={12847} change="+156" changeType="positive" icon={Phone} description="vs yesterday" />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* System Health */}
-        <Card className="bg-gradient-surface border-admin-border">
+        <Card className="bg-gradient-surface border-admin-border bg-gray-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-admin-accent" />
@@ -94,13 +64,23 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { name: "TechCorp Solutions", calls: 8934, revenue: "$12,450" },
-                { name: "Global Dynamics", calls: 6721, revenue: "$9,820" },
-                { name: "Innovation Labs", calls: 5412, revenue: "$7,650" },
-                { name: "Future Systems", calls: 4238, revenue: "$6,340" },
-              ].map((org, i) => (
-                <div key={i} className="flex items-center justify-between">
+              {[{
+              name: "TechCorp Solutions",
+              calls: 8934,
+              revenue: "$12,450"
+            }, {
+              name: "Global Dynamics",
+              calls: 6721,
+              revenue: "$9,820"
+            }, {
+              name: "Innovation Labs",
+              calls: 5412,
+              revenue: "$7,650"
+            }, {
+              name: "Future Systems",
+              calls: 4238,
+              revenue: "$6,340"
+            }].map((org, i) => <div key={i} className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="text-sm font-medium">{org.name}</p>
                     <p className="text-xs text-muted-foreground">
@@ -108,8 +88,7 @@ export function AdminDashboard() {
                     </p>
                   </div>
                   <Badge variant="secondary">{org.revenue}</Badge>
-                </div>
-              ))}
+                </div>)}
             </div>
           </CardContent>
         </Card>
@@ -122,50 +101,35 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                {
-                  action: "New organization registered",
-                  org: "StartupCo",
-                  time: "2 minutes ago",
-                  type: "success",
-                },
-                {
-                  action: "Agent deployment failed",
-                  org: "TechCorp",
-                  time: "15 minutes ago",
-                  type: "error",
-                },
-                {
-                  action: "Credit limit reached",
-                  org: "SmallBiz Inc",
-                  time: "1 hour ago",
-                  type: "warning",
-                },
-                {
-                  action: "Subscription upgraded",
-                  org: "Enterprise Corp",
-                  time: "2 hours ago",
-                  type: "success",
-                },
-              ].map((activity, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div
-                    className={`w-2 h-2 rounded-full mt-2 ${
-                      activity.type === "success"
-                        ? "bg-success"
-                        : activity.type === "error"
-                        ? "bg-destructive"
-                        : "bg-warning"
-                    }`}
-                  />
+              {[{
+              action: "New organization registered",
+              org: "StartupCo",
+              time: "2 minutes ago",
+              type: "success"
+            }, {
+              action: "Agent deployment failed",
+              org: "TechCorp",
+              time: "15 minutes ago",
+              type: "error"
+            }, {
+              action: "Credit limit reached",
+              org: "SmallBiz Inc",
+              time: "1 hour ago",
+              type: "warning"
+            }, {
+              action: "Subscription upgraded",
+              org: "Enterprise Corp",
+              time: "2 hours ago",
+              type: "success"
+            }].map((activity, i) => <div key={i} className="flex items-start gap-3">
+                  <div className={`w-2 h-2 rounded-full mt-2 ${activity.type === "success" ? "bg-success" : activity.type === "error" ? "bg-destructive" : "bg-warning"}`} />
                   <div className="space-y-1 flex-1">
                     <p className="text-sm font-medium">{activity.action}</p>
                     <p className="text-xs text-muted-foreground">
                       {activity.org} • {activity.time}
                     </p>
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </CardContent>
         </Card>
@@ -206,6 +170,5 @@ export function AdminDashboard() {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 }

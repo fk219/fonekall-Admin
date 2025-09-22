@@ -49,32 +49,54 @@ export function useOrganizations() {
         .select(`
           *,
           agents:agents(count),
-          calls:calls(count, call_cost),
           phone_numbers:phone_numbers(number),
           users:users(count)
         `);
 
       if (orgsError) throw orgsError;
 
+      // Fetch call stats separately to avoid GROUP BY issues
+      const { data: callStatsData, error: callStatsError } = await supabase
+        .from('calls')
+        .select('organization_id, call_cost')
+        .not('call_cost', 'is', null);
+
+      if (callStatsError) throw callStatsError;
+
+      // Process call statistics by organization
+      const callStatsByOrg = callStatsData?.reduce((acc: Record<string, { count: number; totalCost: number }>, call) => {
+        const orgId = call.organization_id;
+        if (!acc[orgId]) {
+          acc[orgId] = { count: 0, totalCost: 0 };
+        }
+        acc[orgId].count += 1;
+        acc[orgId].totalCost += call.call_cost || 0;
+        return acc;
+      }, {}) || {};
+
       // Process organizations data
-      const processedOrgs: Organization[] = orgsData?.map(org => ({
-        id: org.id,
-        name: org.name,
-        email: org.support_email,
-        plan: org.plan || 'starter',
-        created_at: org.created_at,
-        credit_balance: org.credit_balance || 0,
-        current_month_calls: org.current_month_calls || 0,
-        monthly_call_limit: org.monthly_call_limit || 1000,
-        is_active: org.is_active ?? true,
-        domain: org.domain,
-        support_email: org.support_email,
-        agents_count: org.agents?.[0]?.count || 0,
-        total_calls: org.calls?.[0]?.count || 0,
-        total_spend: org.calls?.reduce((sum: number, call: any) => sum + (call.call_cost || 0), 0) || 0,
-        phone_numbers: org.phone_numbers?.map((pn: any) => pn.number) || [],
-        last_activity: org.updated_at
-      })) || [];
+      const processedOrgs: Organization[] = orgsData?.map(org => {
+        const callStats = callStatsByOrg[org.id] || { count: 0, totalCost: 0 };
+        
+        return {
+          id: org.id,
+          name: org.name,
+          email: org.support_email,
+          plan: org.plan || 'starter',
+          created_at: org.created_at,
+          credit_balance: org.credit_balance || 0,
+          current_month_calls: org.current_month_calls || 0,
+          monthly_call_limit: org.monthly_call_limit || 1000,
+          is_active: org.is_active ?? true,
+          domain: org.domain,
+          support_email: org.support_email,
+          agents_count: org.agents?.[0]?.count || 0,
+          total_calls: callStats.count,
+          total_spend: callStats.totalCost,
+          phone_numbers: org.phone_numbers?.map((pn: any) => pn.number) || [],
+          last_activity: org.updated_at
+        };
+      }) || [];
 
       setOrganizations(processedOrgs);
 

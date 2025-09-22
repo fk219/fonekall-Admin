@@ -5,43 +5,61 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
-import { Building2, Phone, Bot, CreditCard, Users, Calendar, DollarSign, Activity, Plus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Building2, Phone, Bot, CreditCard, Users, Calendar, DollarSign, Activity, Plus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Organization } from "@/hooks/useOrganizations";
+import { supabase } from "@/integrations/supabase/client";
 
-interface Organization {
+interface CreditTransaction {
   id: string;
-  name: string;
-  email: string;
-  plan: string;
-  status: string;
-  agents: number;
-  credits: number;
-  usage: string;
-  joinDate: string;
-  phone?: string;
-  username?: string;
-  password?: string;
-  totalCalls?: number;
-  monthlySpend?: number;
-  lastActivity?: string;
+  created_at: string;
+  transaction_type: string;
+  amount: number;
+  balance_before: number;
+  balance_after: number;
+  description: string;
 }
 
 interface OrganizationDetailModalProps {
   organization: Organization | null;
   isOpen: boolean;
   onClose: () => void;
+  onAddCredits: (orgId: string, amount: number, description?: string) => Promise<boolean>;
 }
 
-export function OrganizationDetailModal({ organization, isOpen, onClose }: OrganizationDetailModalProps) {
+export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCredits }: OrganizationDetailModalProps) {
   const [creditAmount, setCreditAmount] = useState("");
   const [isAddingCredits, setIsAddingCredits] = useState(false);
+  const [creditHistory, setCreditHistory] = useState<CreditTransaction[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const { toast } = useToast();
 
   if (!organization) return null;
 
+  const fetchCreditHistory = async () => {
+    if (!organization) return;
+    
+    setLoadingHistory(true);
+    try {
+      const { data, error } = await supabase
+        .from('credit_transactions')
+        .select('*')
+        .eq('organization_id', organization.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setCreditHistory(data || []);
+    } catch (error) {
+      console.error('Error fetching credit history:', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
   const handleAddCredits = async () => {
-    if (!creditAmount || parseInt(creditAmount) <= 0) {
+    if (!organization || !creditAmount || parseFloat(creditAmount) <= 0) {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid credit amount",
@@ -51,38 +69,39 @@ export function OrganizationDetailModal({ organization, isOpen, onClose }: Organ
     }
 
     setIsAddingCredits(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const success = await onAddCredits(
+      organization.id, 
+      parseFloat(creditAmount),
+      `Manual credit addition by admin`
+    );
     
-    toast({
-      title: "Credits Added",
-      description: `Successfully added ${creditAmount} credits to ${organization.name}`,
-    });
+    if (success) {
+      setCreditAmount("");
+      await fetchCreditHistory(); // Refresh history
+    }
     
-    setCreditAmount("");
     setIsAddingCredits(false);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Active":
-        return "bg-success text-success-foreground";
-      case "Trial":
-        return "bg-warning text-warning-foreground";
-      case "Suspended":
-        return "bg-destructive text-destructive-foreground";
-      default:
-        return "bg-muted text-muted-foreground";
+  useEffect(() => {
+    if (isOpen && organization) {
+      fetchCreditHistory();
     }
+  }, [isOpen, organization]);
+
+  const getStatusColor = (isActive: boolean) => {
+    return isActive 
+      ? "bg-success text-success-foreground" 
+      : "bg-destructive text-destructive-foreground";
   };
 
   const getPlanColor = (plan: string) => {
-    switch (plan) {
-      case "Enterprise":
+    switch (plan.toLowerCase()) {
+      case "enterprise":
         return "bg-primary text-primary-foreground";
-      case "Professional":
+      case "professional":
         return "bg-gradient-accent text-white";
-      case "Starter":
+      case "starter":
         return "bg-secondary text-secondary-foreground";
       default:
         return "bg-muted text-muted-foreground";
@@ -118,15 +137,20 @@ export function OrganizationDetailModal({ organization, isOpen, onClose }: Organ
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">Email</Label>
-                  <p className="text-sm">{organization.email}</p>
+                  <p className="text-sm">{organization.email || organization.support_email || 'N/A'}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Phone Number</Label>
-                  <p className="text-sm">{organization.phone || "+1 (555) 123-4567"}</p>
+                  <Label className="text-sm font-medium text-muted-foreground">Phone Numbers</Label>
+                  <p className="text-sm">
+                    {organization.phone_numbers?.length 
+                      ? organization.phone_numbers.join(', ')
+                      : 'No phone numbers'
+                    }
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">Join Date</Label>
-                  <p className="text-sm">{new Date(organization.joinDate).toLocaleDateString()}</p>
+                  <p className="text-sm">{new Date(organization.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
 
@@ -134,12 +158,12 @@ export function OrganizationDetailModal({ organization, isOpen, onClose }: Organ
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Username</Label>
-                  <p className="text-sm font-mono">{organization.username || "org_" + organization.id}</p>
+                  <Label className="text-sm font-medium text-muted-foreground">Domain</Label>
+                  <p className="text-sm">{organization.domain || 'N/A'}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Password</Label>
-                  <p className="text-sm font-mono">{"*".repeat(12)}</p>
+                  <Label className="text-sm font-medium text-muted-foreground">Monthly Call Limit</Label>
+                  <p className="text-sm">{organization.monthly_call_limit.toLocaleString()}</p>
                 </div>
               </div>
 
@@ -155,7 +179,9 @@ export function OrganizationDetailModal({ organization, isOpen, onClose }: Organ
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">Status</Label>
                   <div className="mt-1">
-                    <Badge className={getStatusColor(organization.status)}>{organization.status}</Badge>
+                    <Badge className={getStatusColor(organization.is_active)}>
+                      {organization.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
                   </div>
                 </div>
               </div>
@@ -172,7 +198,7 @@ export function OrganizationDetailModal({ organization, isOpen, onClose }: Organ
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{organization.agents}</div>
+                <div className="text-2xl font-bold">{organization.agents_count || 0}</div>
                 <p className="text-xs text-muted-foreground">Active agents</p>
               </CardContent>
             </Card>
@@ -185,7 +211,7 @@ export function OrganizationDetailModal({ organization, isOpen, onClose }: Organ
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{organization.totalCalls || 1247}</div>
+                <div className="text-2xl font-bold">{organization.total_calls || 0}</div>
                 <p className="text-xs text-muted-foreground">All time</p>
               </CardContent>
             </Card>
@@ -198,8 +224,8 @@ export function OrganizationDetailModal({ organization, isOpen, onClose }: Organ
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{organization.usage}</div>
-                <p className="text-xs text-muted-foreground">Current month</p>
+                <div className="text-2xl font-bold">${(organization.total_spend || 0).toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground">Total spend</p>
               </CardContent>
             </Card>
           </div>
@@ -214,13 +240,13 @@ export function OrganizationDetailModal({ organization, isOpen, onClose }: Organ
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium mb-3">Current Balance</h4>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">{organization.credits.toLocaleString()}</div>
-                    <p className="text-sm text-muted-foreground">Available credits</p>
+                  <div>
+                    <h4 className="font-medium mb-3">Current Balance</h4>
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-primary">{organization.credit_balance.toLocaleString()}</div>
+                      <p className="text-sm text-muted-foreground">Available credits</p>
+                    </div>
                   </div>
-                </div>
 
                 <div>
                   <h4 className="font-medium mb-3">Add Credits</h4>
@@ -248,29 +274,50 @@ export function OrganizationDetailModal({ organization, isOpen, onClose }: Organ
 
               <div>
                 <h4 className="font-medium mb-3">Credit History</h4>
-                <div className="space-y-2">
-                  {[
-                    { date: "2024-03-15", action: "Added", amount: 1000, balance: organization.credits },
-                    { date: "2024-03-10", action: "Used", amount: -250, balance: organization.credits - 1000 },
-                    { date: "2024-03-05", action: "Added", amount: 500, balance: organization.credits - 750 },
-                  ].map((transaction, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${transaction.amount > 0 ? 'bg-success' : 'bg-warning'}`} />
-                        <div>
-                          <p className="text-sm font-medium">{transaction.action} Credits</p>
-                          <p className="text-xs text-muted-foreground">{transaction.date}</p>
+                {loadingHistory ? (
+                  <div className="flex items-center justify-center p-4">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="ml-2 text-sm text-muted-foreground">Loading history...</span>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {creditHistory.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">No credit history found</p>
+                    ) : (
+                      creditHistory.map((transaction) => (
+                        <div key={transaction.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-2 h-2 rounded-full ${
+                              transaction.transaction_type === 'addition' ? 'bg-success' : 'bg-warning'
+                            }`} />
+                            <div>
+                              <p className="text-sm font-medium">
+                                {transaction.transaction_type === 'addition' ? 'Added' : 'Used'} Credits
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(transaction.created_at).toLocaleDateString()}
+                              </p>
+                              {transaction.description && (
+                                <p className="text-xs text-muted-foreground">{transaction.description}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-sm font-medium ${
+                              transaction.transaction_type === 'addition' ? 'text-success' : 'text-warning'
+                            }`}>
+                              {transaction.transaction_type === 'addition' ? '+' : '-'}
+                              {Math.abs(transaction.amount).toLocaleString()}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Balance: {transaction.balance_after.toLocaleString()}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={`text-sm font-medium ${transaction.amount > 0 ? 'text-success' : 'text-warning'}`}>
-                          {transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Balance: {transaction.balance.toLocaleString()}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -287,15 +334,24 @@ export function OrganizationDetailModal({ organization, isOpen, onClose }: Organ
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-muted/50 rounded-lg">
                   <h5 className="font-medium text-sm mb-2">Last Activity</h5>
-                  <p className="text-sm text-muted-foreground">{organization.lastActivity || "2 hours ago"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {organization.last_activity 
+                      ? new Date(organization.last_activity).toLocaleString()
+                      : "No recent activity"
+                    }
+                  </p>
                 </div>
                 <div className="p-4 bg-muted/50 rounded-lg">
-                  <h5 className="font-medium text-sm mb-2">Success Rate</h5>
-                  <p className="text-sm text-muted-foreground">94.2%</p>
+                  <h5 className="font-medium text-sm mb-2">Monthly Calls</h5>
+                  <p className="text-sm text-muted-foreground">
+                    {organization.current_month_calls} / {organization.monthly_call_limit}
+                  </p>
                 </div>
                 <div className="p-4 bg-muted/50 rounded-lg">
-                  <h5 className="font-medium text-sm mb-2">Avg Call Duration</h5>
-                  <p className="text-sm text-muted-foreground">3m 24s</p>
+                  <h5 className="font-medium text-sm mb-2">Auto Recharge</h5>
+                  <p className="text-sm text-muted-foreground">
+                    ${(organization as any).auto_recharge_amount || 0} when below ${(organization as any).low_credit_threshold || 0}
+                  </p>
                 </div>
               </div>
             </CardContent>

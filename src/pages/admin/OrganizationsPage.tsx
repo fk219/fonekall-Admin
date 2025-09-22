@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, MoreHorizontal, Building2, Bot, CreditCard, Users, Eye } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Building2, Bot, CreditCard, Users, Eye, Loader2, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,95 +22,34 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { OrganizationDetailModal } from "@/components/admin/OrganizationDetailModal";
-
-const organizations = [
-  {
-    id: "1",
-    name: "TechCorp Solutions",
-    email: "admin@techcorp.com",
-    plan: "Enterprise",
-    status: "Active",
-    agents: 24,
-    credits: 5420,
-    usage: "$2,340",
-    joinDate: "2024-01-15",
-  },
-  {
-    id: "2",
-    name: "Global Dynamics",
-    email: "contact@globaldynamics.com",
-    plan: "Professional",
-    status: "Active",
-    agents: 18,
-    credits: 3200,
-    usage: "$1,890",
-    joinDate: "2024-02-08",
-  },
-  {
-    id: "3",
-    name: "Innovation Labs",
-    email: "info@innovationlabs.io",
-    plan: "Professional",
-    status: "Active",
-    agents: 12,
-    credits: 2100,
-    usage: "$1,420",
-    joinDate: "2024-02-22",
-  },
-  {
-    id: "4",
-    name: "StartupCo",
-    email: "team@startupco.com",
-    plan: "Starter",
-    status: "Trial",
-    agents: 3,
-    credits: 500,
-    usage: "$89",
-    joinDate: "2024-03-10",
-  },
-  {
-    id: "5",
-    name: "SmallBiz Inc",
-    email: "contact@smallbiz.com",
-    plan: "Starter",
-    status: "Suspended",
-    agents: 5,
-    credits: 0,
-    usage: "$156",
-    joinDate: "2024-01-28",
-  },
-];
+import { useOrganizations, Organization } from "@/hooks/useOrganizations";
+import { MetricCard } from "@/components/admin/MetricCard";
 
 export function OrganizationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedOrganization, setSelectedOrganization] = useState<typeof organizations[0] | null>(null);
+  const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const { organizations, stats, loading, addCredits } = useOrganizations();
 
   const filteredOrgs = organizations.filter(org =>
     org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    org.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (org.email || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Active":
-        return "bg-success text-success-foreground";
-      case "Trial":
-        return "bg-warning text-warning-foreground";
-      case "Suspended":
-        return "bg-destructive text-destructive-foreground";
-      default:
-        return "bg-muted text-muted-foreground";
-    }
+  const getStatusColor = (isActive: boolean) => {
+    return isActive 
+      ? "bg-success text-success-foreground" 
+      : "bg-destructive text-destructive-foreground";
   };
 
   const getPlanColor = (plan: string) => {
-    switch (plan) {
-      case "Enterprise":
+    switch (plan.toLowerCase()) {
+      case "enterprise":
         return "bg-primary text-primary-foreground";
-      case "Professional":
+      case "professional":
         return "bg-gradient-accent text-white";
-      case "Starter":
+      case "starter":
         return "bg-secondary text-secondary-foreground";
       default:
         return "bg-muted text-muted-foreground";
@@ -133,60 +72,48 @@ export function OrganizationsPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card className="bg-gradient-surface border-border shadow-elevated">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Organizations</CardTitle>
-            <Building2 className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{organizations.length}</div>
-            <p className="text-xs text-muted-foreground">
-              +12% from last month
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-surface border-border shadow-elevated">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Agents</CardTitle>
-            <Bot className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {organizations.reduce((sum, org) => sum + org.agents, 0)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Across all organizations
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-surface border-border shadow-elevated">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
-            <CreditCard className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {organizations.reduce((sum, org) => sum + org.credits, 0).toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Available credits
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-surface border-border shadow-elevated">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-            <CreditCard className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$6,895</div>
-            <p className="text-xs text-muted-foreground">
-              +8% from last month
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      {loading ? (
+        <div className="grid gap-4 md:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="bg-gradient-surface border-border shadow-elevated">
+              <CardContent className="p-6">
+                <div className="animate-pulse space-y-2">
+                  <div className="h-4 bg-muted rounded w-1/2"></div>
+                  <div className="h-8 bg-muted rounded w-3/4"></div>
+                  <div className="h-3 bg-muted rounded w-1/3"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-4">
+          <MetricCard
+            title="Total Organizations"
+            value={stats.totalOrganizations}
+            icon={Building2}
+            description="Active organizations"
+          />
+          <MetricCard
+            title="Active Agents"
+            value={stats.activeAgents}
+            icon={Bot}
+            description="Deployed across all orgs"
+          />
+          <MetricCard
+            title="Total Credits"
+            value={stats.totalCredits.toLocaleString()}
+            icon={CreditCard}
+            description="Available credits"
+          />
+          <MetricCard
+            title="Monthly Revenue"
+            value={`$${stats.monthlyRevenue.toLocaleString()}`}
+            icon={DollarSign}
+            description="This month's revenue"
+          />
+        </div>
+      )}
 
       {/* Search and Filters */}
       <Card className="bg-gradient-surface border-border shadow-elevated">
@@ -209,89 +136,110 @@ export function OrganizationsPage() {
             </div>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Organization</TableHead>
-                <TableHead>Plan</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Agents</TableHead>
-                <TableHead>Credits</TableHead>
-                <TableHead>Usage</TableHead>
-                <TableHead>Join Date</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredOrgs.map((org) => (
-                <TableRow 
-                  key={org.id} 
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => {
-                    setSelectedOrganization(org);
-                    setIsModalOpen(true);
-                  }}
-                >
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-gradient-primary text-white">
-                          {org.name.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{org.name}</div>
-                        <div className="text-sm text-muted-foreground">{org.email}</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getPlanColor(org.plan)}>{org.plan}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(org.status)}>{org.status}</Badge>
-                  </TableCell>
-                  <TableCell className="font-medium">{org.agents}</TableCell>
-                  <TableCell>{org.credits.toLocaleString()}</TableCell>
-                  <TableCell className="font-medium">{org.usage}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {new Date(org.joinDate).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          className="h-8 w-8 p-0"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedOrganization(org);
-                          setIsModalOpen(true);
-                        }}>
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>Edit Organization</DropdownMenuItem>
-                        <DropdownMenuItem>Add Credits</DropdownMenuItem>
-                        <DropdownMenuItem>Manage Subscription</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
-                          Suspend Organization
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+          {loading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="animate-pulse flex items-center space-x-4 p-4">
+                  <div className="rounded-full bg-muted h-10 w-10"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-muted rounded w-1/4"></div>
+                    <div className="h-3 bg-muted rounded w-1/6"></div>
+                  </div>
+                  <div className="h-6 bg-muted rounded w-20"></div>
+                  <div className="h-6 bg-muted rounded w-16"></div>
+                  <div className="h-4 bg-muted rounded w-12"></div>
+                </div>
               ))}
-            </TableBody>
-          </Table>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Organization</TableHead>
+                  <TableHead>Plan</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Agents</TableHead>
+                  <TableHead>Credits</TableHead>
+                  <TableHead>Total Calls</TableHead>
+                  <TableHead>Monthly Spend</TableHead>
+                  <TableHead>Join Date</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredOrgs.map((org) => (
+                  <TableRow 
+                    key={org.id} 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => {
+                      setSelectedOrganization(org);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-gradient-primary text-white">
+                            {org.name.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{org.name}</div>
+                          <div className="text-sm text-muted-foreground">{org.email || org.support_email}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getPlanColor(org.plan)}>{org.plan}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(org.is_active)}>
+                        {org.is_active ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-medium">{org.agents_count || 0}</TableCell>
+                    <TableCell className="font-medium">{org.credit_balance.toLocaleString()}</TableCell>
+                    <TableCell className="font-medium">{org.total_calls || 0}</TableCell>
+                    <TableCell className="font-medium">${(org.total_spend || 0).toFixed(2)}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(org.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedOrganization(org);
+                            setIsModalOpen(true);
+                          }}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>Edit Organization</DropdownMenuItem>
+                          <DropdownMenuItem>Add Credits</DropdownMenuItem>
+                          <DropdownMenuItem>Manage Subscription</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-destructive">
+                            Suspend Organization
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
@@ -302,6 +250,7 @@ export function OrganizationsPage() {
           setIsModalOpen(false);
           setSelectedOrganization(null);
         }}
+        onAddCredits={addCredits}
       />
     </div>
   );

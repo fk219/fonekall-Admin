@@ -65,7 +65,7 @@ export function OrganizationsPage() {
             Manage all registered organizations and their subscriptions
           </p>
         </div>
-        <Button className="bg-gradient-primary hover:opacity-90 shadow-elevated">
+        <Button className="btn-premium shadow-elevated hover:shadow-soft">
           <Plus className="w-4 h-4 mr-2" />
           Add Organization
         </Button>
@@ -116,7 +116,7 @@ export function OrganizationsPage() {
       )}
 
       {/* Search and Filters */}
-      <Card className="bg-gradient-surface border-border shadow-elevated">
+      <Card className="card-enhanced shadow-soft">
         <CardHeader>
           <CardTitle>Organizations List</CardTitle>
           <CardDescription>

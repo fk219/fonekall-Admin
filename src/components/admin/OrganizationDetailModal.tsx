@@ -112,7 +112,7 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto card-enhanced">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-xl">
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
@@ -124,7 +124,7 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Basic Information */}
-          <Card className="lg:col-span-2 bg-gradient-surface border-border">
+          <Card className="lg:col-span-2 card-enhanced">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
@@ -192,7 +192,7 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
 
           {/* Quick Stats */}
           <div className="space-y-4">
-            <Card className="bg-gradient-surface border-border">
+            <Card className="card-enhanced hover:shadow-elevated transition-all duration-300">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Bot className="w-4 h-4 text-primary" />
@@ -205,7 +205,7 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-surface border-border">
+            <Card className="card-enhanced hover:shadow-elevated transition-all duration-300">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Phone className="w-4 h-4 text-primary" />
@@ -218,7 +218,7 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-surface border-border">
+            <Card className="card-enhanced hover:shadow-elevated transition-all duration-300">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <DollarSign className="w-4 h-4 text-primary" />
@@ -233,7 +233,7 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
           </div>
 
           {/* Credit Management */}
-          <Card className="lg:col-span-3 bg-gradient-surface border-border">
+          <Card className="lg:col-span-3 card-enhanced">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="w-4 h-4" />
@@ -263,7 +263,7 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
                     <Button 
                       onClick={handleAddCredits}
                       disabled={isAddingCredits}
-                      className="bg-gradient-primary hover:opacity-90"
+                      className="btn-premium"
                     >
                       <Plus className="w-4 h-4 mr-1" />
                       {isAddingCredits ? "Adding..." : "Add"}
@@ -325,7 +325,7 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
           </Card>
 
           {/* Activity & Performance */}
-          <Card className="lg:col-span-3 bg-gradient-surface border-border">
+          <Card className="lg:col-span-3 card-enhanced">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-4 h-4" />
@@ -364,7 +364,7 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
-          <Button className="bg-gradient-primary hover:opacity-90">
+          <Button className="btn-premium">
             Edit Organization
           </Button>
         </div>

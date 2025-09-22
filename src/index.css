@@ -8,117 +8,138 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 151 25% 98%;
+    /* Modern neutral base with warm undertones */
+    --background: 210 20% 98%;
     --foreground: 222.2 84% 4.9%;
 
+    /* Clean card system */
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 151 81% 18%;
+    /* Modern blue primary with professional appeal */
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 151 15% 95%;
+    /* Soft secondary system */
+    --secondary: 210 40% 96%;
     --secondary-foreground: 222.2 84% 4.9%;
 
-    --muted: 151 10% 96%;
-    --muted-foreground: 215 8.9% 46.1%;
+    /* Refined muted colors */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 151 20% 90%;
-    --accent-foreground: 151 81% 18%;
+    /* Vibrant accent system */
+    --accent: 262 90% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
+    /* Enhanced status colors */
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 222.2 84% 4.9%;
 
-    --border: 151 15% 85%;
-    --input: 151 15% 90%;
-    --ring: 151 81% 28%;
+    /* Subtle borders and inputs */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221 83% 53%;
 
-    --admin-bg: 215 28% 17%;
-    --admin-surface: 215 25% 22%;
-    --admin-border: 215 20% 35%;
-    --admin-accent: 151 81% 48%;
-    --admin-accent-muted: 151 50% 35%;
+    /* Premium admin theme */
+    --admin-bg: 224 71% 4%;
+    --admin-surface: 224 71% 6%;
+    --admin-border: 215 28% 17%;
+    --admin-accent: 262 90% 50%;
+    --admin-accent-muted: 262 50% 35%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(151 81% 18%), hsl(151 81% 28%));
-    --gradient-surface: linear-gradient(135deg, hsl(215 25% 22%), hsl(215 25% 25%));
-    --gradient-accent: linear-gradient(135deg, hsl(151 81% 48%), hsl(151 81% 58%));
-    --shadow-elevated: 0 10px 25px -5px hsl(151 81% 15% / 0.3);
+    /* Modern gradients with depth */
+    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(262 90% 50%));
+    --gradient-surface: linear-gradient(135deg, hsl(224 71% 6%), hsl(224 71% 8%));
+    --gradient-accent: linear-gradient(135deg, hsl(262 90% 50%), hsl(221 83% 53%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 40% 98%));
+    --shadow-elevated: 0 25px 50px -12px hsl(221 83% 53% / 0.25);
+    --shadow-soft: 0 4px 6px -1px hsl(221 83% 53% / 0.1);
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
-    --sidebar-background: 151 30% 97%;
+    /* Enhanced sidebar system */
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 215 13.8% 34.1%;
-    --sidebar-primary: 151 81% 18%;
+    --sidebar-primary: 221 83% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 151 20% 92%;
-    --sidebar-accent-foreground: 151 81% 18%;
-    --sidebar-border: 151 15% 85%;
-    --sidebar-ring: 151 81% 48%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 221 83% 53%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 262 90% 50%;
   }
 
   .dark {
-    --background: 215 28% 17%;
+    /* Deep, sophisticated dark theme */
+    --background: 224 71% 4%;
     --foreground: 210 40% 98%;
 
-    --card: 215 25% 22%;
+    --card: 224 71% 6%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 215 25% 22%;
+    --popover: 224 71% 6%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 151 81% 48%;
-    --primary-foreground: 215 28% 17%;
+    /* Bright, accessible primary in dark mode */
+    --primary: 262 90% 50%;
+    --primary-foreground: 224 71% 4%;
 
-    --secondary: 215 20% 35%;
+    --secondary: 215 28% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 215 20% 35%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 217.9 10.6% 64.9%;
 
-    --accent: 215 20% 35%;
+    --accent: 221 83% 53%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 50.6%;
+    /* Enhanced dark mode status colors */
+    --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
 
-    --success: 142 76% 46%;
+    --success: 142 71% 45%;
     --success-foreground: 210 40% 98%;
 
-    --warning: 38 92% 60%;
-    --warning-foreground: 215 28% 17%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 224 71% 4%;
 
-    --border: 215 20% 35%;
-    --input: 215 20% 35%;
-    --ring: 151 81% 48%;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 262 90% 50%;
 
-    --admin-bg: 215 28% 17%;
-    --admin-surface: 215 25% 22%;
-    --admin-border: 215 20% 35%;
-    --admin-accent: 151 81% 48%;
-    --admin-accent-muted: 151 50% 35%;
+    /* Premium dark admin theme */
+    --admin-bg: 224 71% 4%;
+    --admin-surface: 224 71% 6%;
+    --admin-border: 215 28% 17%;
+    --admin-accent: 262 90% 50%;
+    --admin-accent-muted: 262 50% 35%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(151 81% 48%), hsl(151 81% 58%));
-    --gradient-surface: linear-gradient(135deg, hsl(215 25% 22%), hsl(215 25% 25%));
-    --gradient-accent: linear-gradient(135deg, hsl(151 81% 48%), hsl(151 81% 58%));
-    --shadow-elevated: 0 10px 25px -5px hsl(151 81% 15% / 0.3);
+    /* Vibrant dark gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(262 90% 50%), hsl(221 83% 53%));
+    --gradient-surface: linear-gradient(135deg, hsl(224 71% 6%), hsl(224 71% 8%));
+    --gradient-accent: linear-gradient(135deg, hsl(262 90% 50%), hsl(221 83% 53%));
+    --gradient-card: linear-gradient(145deg, hsl(224 71% 6%), hsl(224 71% 8%));
+    --shadow-elevated: 0 25px 50px -12px hsl(262 90% 50% / 0.25);
+    --shadow-soft: 0 4px 6px -1px hsl(262 90% 50% / 0.1);
 
-    --sidebar-background: 215 28% 17%;
+    /* Dark sidebar enhancement */
+    --sidebar-background: 224 71% 4%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 151 81% 48%;
-    --sidebar-primary-foreground: 215 28% 17%;
-    --sidebar-accent: 215 20% 35%;
+    --sidebar-primary: 262 90% 50%;
+    --sidebar-primary-foreground: 224 71% 4%;
+    --sidebar-accent: 215 28% 17%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 20% 35%;
-    --sidebar-ring: 151 81% 48%;
+    --sidebar-border: 215 28% 17%;
+    --sidebar-ring: 262 90% 50%;
   }
 }
 
@@ -129,5 +150,51 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Enhanced scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/50;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-border/80;
+  }
+
+  /* Modern focus styles */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2;
+  }
+
+  /* Smooth transitions for theme switching */
+  * {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+@layer components {
+  /* Modern card enhancements */
+  .card-enhanced {
+    @apply bg-gradient-card shadow-soft border-border/50 backdrop-blur-sm;
+  }
+
+  /* Premium button styles */
+  .btn-premium {
+    @apply bg-gradient-primary text-primary-foreground shadow-elevated hover:shadow-soft transition-all duration-300 transform hover:scale-105;
+  }
+
+  /* Modern glass effect */
+  .glass-effect {
+    @apply bg-background/80 backdrop-blur-md border-border/50;
   }
 }

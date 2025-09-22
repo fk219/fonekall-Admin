@@ -81,9 +81,12 @@ export default {
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",
         "gradient-surface": "var(--gradient-surface)",
+        "gradient-accent": "var(--gradient-accent)",
+        "gradient-card": "var(--gradient-card)",
       },
       boxShadow: {
         elevated: "var(--shadow-elevated)",
+        soft: "var(--shadow-soft)",
       },
       keyframes: {
         "accordion-down": {

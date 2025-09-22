@@ -29,13 +29,12 @@ interface OrganizationDetailModalProps {
 }
 
 export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCredits }: OrganizationDetailModalProps) {
+  // All hooks must be called before any conditional returns
   const [creditAmount, setCreditAmount] = useState("");
   const [isAddingCredits, setIsAddingCredits] = useState(false);
   const [creditHistory, setCreditHistory] = useState<CreditTransaction[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const { toast } = useToast();
-
-  if (!organization) return null;
 
   const fetchCreditHistory = async () => {
     if (!organization) return;
@@ -88,6 +87,9 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
       fetchCreditHistory();
     }
   }, [isOpen, organization]);
+
+  // Early return after all hooks are called
+  if (!organization) return null;
 
   const getStatusColor = (isActive: boolean) => {
     return isActive 

@@ -57,7 +57,7 @@ export function AdminDashboard() {
         </Card>
 
         {/* Top Organizations */}
-        <Card className="bg-gradient-surface border-admin-border">
+        <Card className="bg-gradient-surface border-admin-border bg-gray-50">
           <CardHeader>
             <CardTitle>Top Organizations</CardTitle>
             <CardDescription>By monthly usage</CardDescription>

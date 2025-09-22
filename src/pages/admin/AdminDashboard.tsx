@@ -94,7 +94,7 @@ export function AdminDashboard() {
         </Card>
 
         {/* Recent Activities */}
-        <Card className="bg-gradient-surface border-admin-border">
+        <Card className="bg-gradient-surface border-admin-border bg-gray-50">
           <CardHeader>
             <CardTitle>Recent Activities</CardTitle>
             <CardDescription>Latest platform events</CardDescription>

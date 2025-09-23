@@ -1466,6 +1466,45 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          amount: number
+          auto_renew: boolean
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          organization_id: string
+          plan: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number
+          auto_renew?: boolean
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          organization_id: string
+          plan?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          auto_renew?: boolean
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          organization_id?: string
+          plan?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string | null

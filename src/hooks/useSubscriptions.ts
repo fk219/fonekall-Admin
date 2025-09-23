@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface Subscription {
+export interface Subscription {
   id: string;
   organization_id: string;
   plan: string;
@@ -13,6 +13,7 @@ interface Subscription {
   auto_renew: boolean;
   created_at: string;
   updated_at: string;
+  organization_name: string;
 }
 
 interface CreditTransaction {
@@ -63,7 +64,8 @@ export const useSubscriptions = () => {
         currency: 'USD',
         auto_renew: org.auto_recharge_enabled,
         created_at: org.created_at,
-        updated_at: org.updated_at
+        updated_at: org.updated_at,
+        organization_name: org.name
       })) || [];
 
       setSubscriptions(transformedSubs);

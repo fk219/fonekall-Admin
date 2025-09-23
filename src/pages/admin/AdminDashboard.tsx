@@ -23,7 +23,7 @@ export function AdminDashboard() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* System Health */}
-        <Card className="bg-gradient-surface border-admin-border bg-gray-50">
+        <Card className="card-enhanced">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-admin-accent" />
@@ -57,7 +57,7 @@ export function AdminDashboard() {
         </Card>
 
         {/* Top Organizations */}
-        <Card className="bg-gradient-surface border-admin-border bg-gray-50">
+        <Card className="card-enhanced">
           <CardHeader>
             <CardTitle>Top Organizations</CardTitle>
             <CardDescription>By monthly usage</CardDescription>
@@ -94,7 +94,7 @@ export function AdminDashboard() {
         </Card>
 
         {/* Recent Activities */}
-        <Card className="bg-gradient-surface border-admin-border bg-gray-50">
+        <Card className="card-enhanced">
           <CardHeader>
             <CardTitle>Recent Activities</CardTitle>
             <CardDescription>Latest platform events</CardDescription>
@@ -136,7 +136,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="bg-gradient-surface border-admin-border bg-gray-50">
+      <Card className="card-enhanced">
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
           <CardDescription>Common administrative tasks</CardDescription>

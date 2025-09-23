@@ -129,7 +129,7 @@ export const SubscriptionsPage = () => {
                   <SelectContent>
                     {subscriptions.map(sub => (
                       <SelectItem key={sub.organization_id} value={sub.organization_id}>
-                        {sub.organization_id} ({sub.plan})
+                        {sub.organization_name} ({sub.plan})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -218,7 +218,7 @@ export const SubscriptionsPage = () => {
               {subscriptions.map((subscription) => (
                 <TableRow key={subscription.id}>
                   <TableCell className="font-medium text-foreground">
-                    {subscription.organization_id}
+                    {subscription.organization_name}
                   </TableCell>
                   <TableCell>
                     <Select 
@@ -295,7 +295,7 @@ export const SubscriptionsPage = () => {
               {creditTransactions.slice(0, 10).map((transaction) => (
                 <TableRow key={transaction.id}>
                   <TableCell className="font-medium text-foreground">
-                    {transaction.organization_id}
+                    {subscriptions.find(s => s.organization_id === transaction.organization_id)?.organization_name || transaction.organization_id}
                   </TableCell>
                   <TableCell>
                     <Badge 

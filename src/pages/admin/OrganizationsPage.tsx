@@ -21,16 +21,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { OrganizationDetailModal } from "@/components/admin/OrganizationDetailModal";
-import { useOrganizations, Organization } from "@/hooks/useOrganizations";
+import { ComprehensiveOrganizationModal } from "@/components/admin/ComprehensiveOrganizationModal";
+import { useRetellOrganizations, RetellOrganization } from "@/hooks/useRetellOrganizations";
 import { MetricCard } from "@/components/admin/MetricCard";
 
 export function OrganizationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
+  const [selectedOrganization, setSelectedOrganization] = useState<RetellOrganization | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const { organizations, stats, loading, addCredits } = useOrganizations();
+  const { organizations, stats, loading, addCredits, getOrganizationDetails } = useRetellOrganizations();
 
   const filteredOrgs = organizations.filter(org =>
     org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -243,7 +243,7 @@ export function OrganizationsPage() {
         </CardContent>
       </Card>
 
-      <OrganizationDetailModal
+      <ComprehensiveOrganizationModal
         organization={selectedOrganization}
         isOpen={isModalOpen}
         onClose={() => {
@@ -251,6 +251,7 @@ export function OrganizationsPage() {
           setSelectedOrganization(null);
         }}
         onAddCredits={addCredits}
+        getOrganizationDetails={getOrganizationDetails}
       />
     </div>
   );

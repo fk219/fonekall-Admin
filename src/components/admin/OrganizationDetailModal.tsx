@@ -1,45 +1,52 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState, useEffect } from "react";
-import { Building2, Phone, Bot, CreditCard, Users, Calendar, DollarSign, Activity, Plus, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { Organization } from "@/hooks/useOrganizations";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Building2, CreditCard, Phone, Users, Calendar, DollarSign, Activity } from 'lucide-react';
+import { RetellOrganization } from '@/hooks/useRetellOrganizations';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface CreditTransaction {
   id: string;
-  created_at: string;
+  organization_id: string;
   transaction_type: string;
   amount: number;
   balance_before: number;
   balance_after: number;
   description: string;
+  reference_type: string;
+  reference_id: string;
+  created_at: string;
 }
 
 interface OrganizationDetailModalProps {
-  organization: Organization | null;
+  organization: RetellOrganization | null;
   isOpen: boolean;
   onClose: () => void;
   onAddCredits: (orgId: string, amount: number, description?: string) => Promise<boolean>;
 }
 
-export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCredits }: OrganizationDetailModalProps) {
-  // All hooks must be called before any conditional returns
-  const [creditAmount, setCreditAmount] = useState("");
-  const [isAddingCredits, setIsAddingCredits] = useState(false);
+export function OrganizationDetailModal({
+  organization,
+  isOpen,
+  onClose,
+  onAddCredits
+}: OrganizationDetailModalProps) {
+  const [creditAmount, setCreditAmount] = useState('');
+  const [loading, setLoading] = useState(false);
   const [creditHistory, setCreditHistory] = useState<CreditTransaction[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const { toast } = useToast();
 
   const fetchCreditHistory = async () => {
     if (!organization) return;
     
-    setLoadingHistory(true);
+    setHistoryLoading(true);
     try {
       const { data, error } = await supabase
         .from('credit_transactions')
@@ -53,33 +60,30 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
     } catch (error) {
       console.error('Error fetching credit history:', error);
     } finally {
-      setLoadingHistory(false);
+      setHistoryLoading(false);
     }
   };
 
   const handleAddCredits = async () => {
-    if (!organization || !creditAmount || parseFloat(creditAmount) <= 0) {
+    if (!organization || !creditAmount) return;
+
+    const amount = parseFloat(creditAmount);
+    if (isNaN(amount) || amount <= 0) {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid credit amount",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
 
-    setIsAddingCredits(true);
-    const success = await onAddCredits(
-      organization.id, 
-      parseFloat(creditAmount),
-      `Manual credit addition by admin`
-    );
-    
+    setLoading(true);
+    const success = await onAddCredits(organization.id, amount, `Admin credit addition for ${organization.name}`);
     if (success) {
-      setCreditAmount("");
-      await fetchCreditHistory(); // Refresh history
+      setCreditAmount('');
+      await fetchCreditHistory();
     }
-    
-    setIsAddingCredits(false);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -88,115 +92,42 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
     }
   }, [isOpen, organization]);
 
-  // Early return after all hooks are called
   if (!organization) return null;
-
-  const getStatusColor = (isActive: boolean) => {
-    return isActive 
-      ? "bg-success text-success-foreground" 
-      : "bg-destructive text-destructive-foreground";
-  };
-
-  const getPlanColor = (plan: string) => {
-    switch (plan.toLowerCase()) {
-      case "enterprise":
-        return "bg-primary text-primary-foreground";
-      case "professional":
-        return "bg-gradient-accent text-white";
-      case "starter":
-        return "bg-secondary text-secondary-foreground";
-      default:
-        return "bg-muted text-muted-foreground";
-    }
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto card-enhanced">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3 text-xl">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-primary-foreground" />
-            </div>
+          <DialogTitle className="flex items-center gap-3 text-foreground">
+            <Building2 className="w-6 h-6 text-primary" />
             {organization.name}
+            <Badge className={organization.is_active ? 'bg-success text-success-foreground' : 'bg-destructive text-destructive-foreground'}>
+              {organization.is_active ? 'Active' : 'Inactive'}
+            </Badge>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Basic Information */}
-          <Card className="lg:col-span-2 card-enhanced">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Organization Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Organization ID</Label>
-                  <p className="font-mono text-sm">{organization.id}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Email</Label>
-                  <p className="text-sm">{organization.email || organization.support_email || 'N/A'}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Phone Numbers</Label>
-                  <p className="text-sm">
-                    {organization.phone_numbers?.length 
-                      ? organization.phone_numbers.join(', ')
-                      : 'No phone numbers'
-                    }
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Join Date</Label>
-                  <p className="text-sm">{new Date(organization.created_at).toLocaleDateString()}</p>
-                </div>
-              </div>
+        <div className="grid gap-6">
+          {/* Organization Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="card-enhanced">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Building2 className="w-4 h-4" />
+                  Organization
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg font-semibold">{organization.name}</div>
+                <p className="text-xs text-muted-foreground">{organization.plan} plan</p>
+              </CardContent>
+            </Card>
 
-              <Separator />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Domain</Label>
-                  <p className="text-sm">{organization.domain || 'N/A'}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Monthly Call Limit</Label>
-                  <p className="text-sm">{organization.monthly_call_limit.toLocaleString()}</p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="flex gap-4">
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Plan</Label>
-                  <div className="mt-1">
-                    <Badge className={getPlanColor(organization.plan)}>{organization.plan}</Badge>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                  <div className="mt-1">
-                    <Badge className={getStatusColor(organization.is_active)}>
-                      {organization.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Stats */}
-          <div className="space-y-4">
-            <Card className="card-enhanced hover:shadow-elevated transition-all duration-300">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Bot className="w-4 h-4 text-primary" />
-                  Agents Deployed
+            <Card className="card-enhanced">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Agents
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -205,24 +136,24 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
               </CardContent>
             </Card>
 
-            <Card className="card-enhanced hover:shadow-elevated transition-all duration-300">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-primary" />
-                  Total Calls
+            <Card className="card-enhanced">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Phone className="w-4 h-4" />
+                  Calls
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{organization.total_calls || 0}</div>
-                <p className="text-xs text-muted-foreground">All time</p>
+                <div className="text-2xl font-bold">{organization.total_calls?.toLocaleString() || 0}</div>
+                <p className="text-xs text-muted-foreground">Total calls</p>
               </CardContent>
             </Card>
 
-            <Card className="card-enhanced hover:shadow-elevated transition-all duration-300">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-primary" />
-                  Monthly Spend
+            <Card className="card-enhanced">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <DollarSign className="w-4 h-4" />
+                  Spend
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -249,118 +180,154 @@ export function OrganizationDetailModal({ organization, isOpen, onClose, onAddCr
                       <p className="text-sm text-muted-foreground">Available credits</p>
                     </div>
                   </div>
-
-                <div>
-                  <h4 className="font-medium mb-3">Add Credits</h4>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      placeholder="Enter amount"
-                      value={creditAmount}
-                      onChange={(e) => setCreditAmount(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button 
-                      onClick={handleAddCredits}
-                      disabled={isAddingCredits}
-                      className="btn-premium"
-                    >
-                      <Plus className="w-4 h-4 mr-1" />
-                      {isAddingCredits ? "Adding..." : "Add"}
-                    </Button>
+                  
+                  <div>
+                    <h4 className="font-medium mb-3">Add Credits</h4>
+                    <div className="space-y-3">
+                      <Label htmlFor="creditAmount">Amount</Label>
+                      <Input
+                        id="creditAmount"
+                        type="number"
+                        placeholder="Enter credit amount"
+                        value={creditAmount}
+                        onChange={(e) => setCreditAmount(e.target.value)}
+                      />
+                      <Button 
+                        onClick={handleAddCredits} 
+                        disabled={loading || !creditAmount}
+                        className="w-full btn-premium"
+                      >
+                        {loading ? 'Adding...' : 'Add Credits'}
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <Separator />
-
-              <div>
-                <h4 className="font-medium mb-3">Credit History</h4>
-                {loadingHistory ? (
-                  <div className="flex items-center justify-center p-4">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="ml-2 text-sm text-muted-foreground">Loading history...</span>
-                  </div>
-                ) : (
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {creditHistory.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">No credit history found</p>
-                    ) : (
-                      creditHistory.map((transaction) => (
-                        <div key={transaction.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full ${
-                              transaction.transaction_type === 'addition' ? 'bg-success' : 'bg-warning'
-                            }`} />
-                            <div>
-                              <p className="text-sm font-medium">
-                                {transaction.transaction_type === 'addition' ? 'Added' : 'Used'} Credits
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(transaction.created_at).toLocaleDateString()}
-                              </p>
-                              {transaction.description && (
-                                <p className="text-xs text-muted-foreground">{transaction.description}</p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className={`text-sm font-medium ${
-                              transaction.transaction_type === 'addition' ? 'text-success' : 'text-warning'
-                            }`}>
-                              {transaction.transaction_type === 'addition' ? '+' : '-'}
-                              {Math.abs(transaction.amount).toLocaleString()}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Balance: {transaction.balance_after.toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
             </CardContent>
           </Card>
 
-          {/* Activity & Performance */}
-          <Card className="lg:col-span-3 card-enhanced">
+          {/* Credit History */}
+          <Card className="card-enhanced">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-4 h-4" />
-                Recent Activity & Performance
+                Recent Credit Transactions
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <h5 className="font-medium text-sm mb-2">Last Activity</h5>
-                  <p className="text-sm text-muted-foreground">
-                    {organization.last_activity 
-                      ? new Date(organization.last_activity).toLocaleString()
-                      : "No recent activity"
-                    }
-                  </p>
-                </div>
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <h5 className="font-medium text-sm mb-2">Monthly Calls</h5>
-                  <p className="text-sm text-muted-foreground">
-                    {organization.current_month_calls} / {organization.monthly_call_limit}
-                  </p>
-                </div>
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <h5 className="font-medium text-sm mb-2">Auto Recharge</h5>
-                  <p className="text-sm text-muted-foreground">
-                    ${(organization as any).auto_recharge_amount || 0} when below ${(organization as any).low_credit_threshold || 0}
-                  </p>
-                </div>
-              </div>
+              {historyLoading ? (
+                <div className="text-center py-8 text-muted-foreground">Loading transaction history...</div>
+              ) : creditHistory.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Balance After</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {creditHistory.map((transaction) => (
+                      <TableRow key={transaction.id}>
+                        <TableCell>
+                          <Badge 
+                            variant={transaction.transaction_type === 'addition' ? 'default' : 'secondary'}
+                            className={transaction.transaction_type === 'addition' ? 'bg-success text-success-foreground' : 'bg-destructive text-destructive-foreground'}
+                          >
+                            {transaction.transaction_type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className={`font-medium ${transaction.transaction_type === 'addition' ? 'text-success' : 'text-destructive'}`}>
+                          {transaction.transaction_type === 'addition' ? '+' : ''}
+                          {transaction.amount.toFixed(4)}
+                        </TableCell>
+                        <TableCell>{transaction.balance_after.toFixed(4)}</TableCell>
+                        <TableCell className="text-muted-foreground max-w-xs truncate">{transaction.description}</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(transaction.created_at).toLocaleDateString()}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">No transaction history available</div>
+              )}
             </CardContent>
           </Card>
+
+          {/* Organization Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="card-enhanced">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Account Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Organization ID:</span>
+                  <span className="font-mono text-sm">{organization.id.slice(0, 8)}...</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Email:</span>
+                  <span>{organization.email || organization.support_email || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Domain:</span>
+                  <span>{organization.domain || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Join Date:</span>
+                  <span>{new Date(organization.created_at).toLocaleDateString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Last Activity:</span>
+                  <span>{organization.last_activity ? new Date(organization.last_activity).toLocaleDateString() : 'N/A'}</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="card-enhanced">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="w-4 h-4" />
+                  Usage & Performance
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Monthly Calls:</span>
+                  <span>{organization.current_month_calls?.toLocaleString() || 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Call Limit:</span>
+                  <span>{organization.monthly_call_limit?.toLocaleString() || 'Unlimited'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Total Calls:</span>
+                  <span>{organization.total_calls?.toLocaleString() || 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Auto Recharge:</span>
+                  <Badge variant={organization.auto_recharge_enabled ? 'default' : 'secondary'}>
+                    {organization.auto_recharge_enabled ? 'Enabled' : 'Disabled'}
+                  </Badge>
+                </div>
+                {organization.auto_recharge_enabled && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Recharge Amount:</span>
+                    <span>${organization.auto_recharge_amount || 50}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t">
+        <div className="flex justify-end gap-3 pt-4">
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>

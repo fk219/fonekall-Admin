@@ -38,11 +38,6 @@ const App = () => (
               <div className="p-6">Call Analytics Page</div>
             </AdminLayout>
           } />
-          <Route path="/admin/credits" element={
-            <AdminLayout>
-              <div className="p-6">Credit Management Page</div>
-            </AdminLayout>
-          } />
           <Route path="/admin/system" element={
             <AdminLayout>
               <div className="p-6">System Health Page</div>

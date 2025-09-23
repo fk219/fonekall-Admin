@@ -31,7 +31,6 @@ const navigation = [
   { title: "Organizations", url: "/admin/organizations", icon: Building2 },
   { title: "Subscriptions & Credits", url: "/admin/subscriptions", icon: CreditCard },
   { title: "Call Analytics", url: "/admin/analytics", icon: Phone },
-  { title: "Credit Management", url: "/admin/credits", icon: Coins },
 ];
 
 const systemNavigation = [

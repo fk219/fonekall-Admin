@@ -1,10 +1,21 @@
-import { Building2, Bot, Users, DollarSign, Phone, TrendingUp, AlertCircle, Zap } from "lucide-react";
+import { Building2, Bot, Users, DollarSign, Phone, TrendingUp, AlertCircle, Zap, Loader2 } from "lucide-react";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useRetellData } from "@/hooks/useRetellData";
 export function AdminDashboard() {
+  const { dashboardStats, organizations, loading } = useRetellData();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
@@ -15,10 +26,38 @@ export function AdminDashboard() {
 
       {/* Key Metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard title="Total Organizations" value={247} change="+12%" changeType="positive" icon={Building2} description="from last month" />
-        <MetricCard title="Active Agents" value={1834} change="+23%" changeType="positive" icon={Bot} description="deployed agents" />
-        <MetricCard title="Monthly Revenue" value="$48,392" change="+8%" changeType="positive" icon={DollarSign} description="from last month" />
-        <MetricCard title="Total Calls Today" value={12847} change="+156" changeType="positive" icon={Phone} description="vs yesterday" />
+        <MetricCard 
+          title="Total Organizations" 
+          value={dashboardStats?.total_organizations || 0} 
+          change="+12%" 
+          changeType="positive" 
+          icon={Building2} 
+          description="from last month" 
+        />
+        <MetricCard 
+          title="Active Agents" 
+          value={dashboardStats?.active_agents || 0} 
+          change="+23%" 
+          changeType="positive" 
+          icon={Bot} 
+          description="deployed agents" 
+        />
+        <MetricCard 
+          title="Monthly Revenue" 
+          value={`$${dashboardStats?.monthly_revenue?.toLocaleString() || "0"}`} 
+          change="+8%" 
+          changeType="positive" 
+          icon={DollarSign} 
+          description="from last month" 
+        />
+        <MetricCard 
+          title="Total Calls" 
+          value={dashboardStats?.total_calls?.toLocaleString() || "0"} 
+          change="+156" 
+          changeType="positive" 
+          icon={Phone} 
+          description="all time" 
+        />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -35,21 +74,21 @@ export function AdminDashboard() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>API Response Time</span>
-                <span className="text-success">142ms</span>
+                <span className="text-success">{dashboardStats?.system_health?.api_response_time || 142}ms</span>
               </div>
               <Progress value={85} className="h-2" />
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Uptime</span>
-                <span className="text-success">99.98%</span>
+                <span className="text-success">{dashboardStats?.system_health?.uptime || 99.98}%</span>
               </div>
-              <Progress value={99.98} className="h-2" />
+              <Progress value={dashboardStats?.system_health?.uptime || 99.98} className="h-2" />
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Active Connections</span>
-                <span>2,847</span>
+                <span>{dashboardStats?.system_health?.active_connections?.toLocaleString() || 2847}</span>
               </div>
               <Progress value={68} className="h-2" />
             </div>
@@ -64,31 +103,22 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[{
-              name: "TechCorp Solutions",
-              calls: 8934,
-              revenue: "$12,450"
-            }, {
-              name: "Global Dynamics",
-              calls: 6721,
-              revenue: "$9,820"
-            }, {
-              name: "Innovation Labs",
-              calls: 5412,
-              revenue: "$7,650"
-            }, {
-              name: "Future Systems",
-              calls: 4238,
-              revenue: "$6,340"
-            }].map((org, i) => <div key={i} className="flex items-center justify-between">
+              {organizations.slice(0, 4).map((org) => (
+                <div key={org.id} className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="text-sm font-medium">{org.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {org.calls.toLocaleString()} calls
+                      {org.current_month_calls.toLocaleString()} calls
                     </p>
                   </div>
-                  <Badge variant="secondary">{org.revenue}</Badge>
-                </div>)}
+                  <Badge variant="secondary">${org.total_spent?.toFixed(2) || "0.00"}</Badge>
+                </div>
+              ))}
+              {organizations.length === 0 && (
+                <p className="text-center text-muted-foreground py-4">
+                  No organizations found
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>

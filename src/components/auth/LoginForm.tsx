@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,13 +19,13 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 interface LoginFormProps {
-  onToggleMode: () => void;
   onForgotPassword: () => void;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode, onForgotPassword }) => {
+export const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword }) => {
   const { signIn, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -35,7 +36,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode, onForgotPass
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    await signIn(data.email, data.password);
+    const result = await signIn(data.email, data.password);
+    if (!result.error) {
+      navigate('/admin');
+    }
   };
 
   return (
@@ -115,22 +119,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode, onForgotPass
           </form>
         </Form>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-6">
           <button
             onClick={onForgotPassword}
             className="w-full text-sm text-muted-foreground hover:text-primary transition-colors story-link"
+            data-testid="link-forgot-password"
           >
             Forgot your password?
           </button>
-          
-          <div className="text-center">
-            <button
-              onClick={onToggleMode}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors story-link"
-            >
-              Need to create an account? Register here
-            </button>
-          </div>
         </div>
       </CardContent>
     </Card>

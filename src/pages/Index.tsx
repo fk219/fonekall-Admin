@@ -20,16 +20,10 @@ const Index = () => {
         <p className="text-muted-foreground max-w-lg mx-auto">
           Manage organizations, agents, billing, and monitor real-time analytics for your voice AI calling platform.
         </p>
-        <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 shadow-elevated">
+        <div className="pt-4 flex justify-center">
+          <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 shadow-elevated" data-testid="button-government-signin">
             <Link to="/auth">
               Government Sign In
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="hover-scale">
-            <Link to="/admin">
-              Direct Admin Access
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
           </Button>

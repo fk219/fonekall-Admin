@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ComprehensiveOrganizationModal } from "@/components/admin/ComprehensiveOrganizationModal";
+import { CreateOrganizationModal } from "@/components/admin/CreateOrganizationModal";
 import { useRetellOrganizations, RetellOrganization } from "@/hooks/useRetellOrganizations";
 import { MetricCard } from "@/components/admin/MetricCard";
 
@@ -29,8 +30,9 @@ export function OrganizationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrganization, setSelectedOrganization] = useState<RetellOrganization | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   
-  const { organizations, stats, loading, addCredits, getOrganizationDetails } = useRetellOrganizations();
+  const { organizations, stats, loading, addCredits, getOrganizationDetails, refetch } = useRetellOrganizations();
 
   const filteredOrgs = organizations.filter(org =>
     org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -65,7 +67,11 @@ export function OrganizationsPage() {
             Manage all registered organizations and their subscriptions
           </p>
         </div>
-        <Button className="btn-premium shadow-elevated hover:shadow-soft">
+        <Button 
+          className="btn-premium shadow-elevated hover:shadow-soft"
+          onClick={() => setIsCreateModalOpen(true)}
+          data-testid="button-add-organization"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Organization
         </Button>
@@ -252,6 +258,12 @@ export function OrganizationsPage() {
         }}
         onAddCredits={addCredits}
         getOrganizationDetails={getOrganizationDetails}
+      />
+
+      <CreateOrganizationModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={() => refetch()}
       />
     </div>
   );

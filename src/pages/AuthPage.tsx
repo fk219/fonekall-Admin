@@ -14,14 +14,7 @@ export default function AuthPage() {
       case 'login':
         return (
           <LoginForm
-            onToggleMode={() => setMode('signup')}
             onForgotPassword={() => setMode('reset')}
-          />
-        );
-      case 'signup':
-        return (
-          <SignUpForm
-            onToggleMode={() => setMode('login')}
           />
         );
       case 'reset':

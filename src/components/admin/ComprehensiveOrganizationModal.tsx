@@ -19,7 +19,11 @@ import {
   BarChart3,
   Mail,
   Globe,
-  Shield
+  Shield,
+  Bot,
+  Zap,
+  Copy,
+  Check
 } from 'lucide-react';
 import { RetellOrganization } from '@/hooks/useRetellOrganizations';
 import { useToast } from '@/hooks/use-toast';
@@ -53,7 +57,26 @@ export function ComprehensiveOrganizationModal({
   const [loading, setLoading] = useState(false);
   const [detailedData, setDetailedData] = useState<OrganizationDetailData | null>(null);
   const [dataLoading, setDataLoading] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(text);
+      toast({
+        title: "Copied!",
+        description: `${label} copied to clipboard`,
+      });
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (error) {
+      toast({
+        title: "Copy Failed",
+        description: "Failed to copy to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleAddCredits = async () => {
     if (!organization || !creditAmount) return;
@@ -129,9 +152,10 @@ export function ComprehensiveOrganizationModal({
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="billing">Billing & Credits</TabsTrigger>
+            <TabsTrigger value="agents">Agents</TabsTrigger>
             <TabsTrigger value="activity">Call Activity</TabsTrigger>
             <TabsTrigger value="team">Team & Assets</TabsTrigger>
           </TabsList>
@@ -148,8 +172,24 @@ export function ComprehensiveOrganizationModal({
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="text-sm">
-                    <span className="text-muted-foreground">ID:</span>
-                    <span className="ml-2 font-mono text-xs">{organization.id.slice(0, 8)}...</span>
+                    <span className="text-muted-foreground">Organization ID:</span>
+                    <div className="mt-1 flex items-center gap-2">
+                      <div className="font-mono text-xs bg-muted p-2 rounded break-all flex-1" data-testid="text-org-id">
+                        {organization.id}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(organization.id, "Organization ID")}
+                        data-testid="button-copy-org-id"
+                      >
+                        {copiedId === organization.id ? (
+                          <Check className="w-4 h-4 text-success" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   {organization.domain && (
                     <div className="text-sm">
@@ -214,6 +254,14 @@ export function ComprehensiveOrganizationModal({
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Total Spent:</span>
                     <span className="font-medium">${organization.total_spend?.toFixed(2) || '0.00'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Per-Minute Rate:</span>
+                    <span className="font-medium" data-testid="text-per-minute-rate">
+                      {((detailedData?.organization as any)?.per_minute_rate) 
+                        ? `$${((detailedData?.organization as any).per_minute_rate).toFixed(4)}/min`
+                        : 'Not set'}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Plan Value:</span>
@@ -369,6 +417,104 @@ export function ComprehensiveOrganizationModal({
                   </Table>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">No transaction history available</div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="agents" className="space-y-6">
+            {/* Deployed Agents */}
+            <Card className="card-enhanced">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bot className="w-5 h-5" />
+                  Deployed Retell Agents
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {dataLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading agents data...</div>
+                ) : detailedData?.organization.agents?.length ? (
+                  <div className="grid gap-4">
+                    {detailedData.organization.agents.map((agent) => (
+                      <Card key={agent.id} className="border-2">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-base flex items-center gap-2">
+                                <Bot className="w-4 h-4" />
+                                {agent.name}
+                              </CardTitle>
+                              {agent.description && (
+                                <p className="text-sm text-muted-foreground mt-1">{agent.description}</p>
+                              )}
+                            </div>
+                            <Badge variant={agent.status === 'active' ? 'default' : 'secondary'}>
+                              {agent.status || 'Unknown'}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div className="col-span-2">
+                            <span className="text-muted-foreground">Agent ID:</span>
+                            <div className="flex items-center gap-2 mt-1">
+                              <div className="font-mono text-xs bg-muted p-1 rounded break-all flex-1">
+                                {agent.id}
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => copyToClipboard(agent.id, "Agent ID")}
+                                className="h-7"
+                              >
+                                {copiedId === agent.id ? (
+                                  <Check className="w-3 h-3 text-success" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                          {agent.external_agent_id && (
+                            <div>
+                              <span className="text-muted-foreground">External ID:</span>
+                              <div className="font-mono text-xs mt-1">{agent.external_agent_id}</div>
+                            </div>
+                          )}
+                          {agent.voice_id && (
+                            <div>
+                              <span className="text-muted-foreground">Voice:</span>
+                              <div className="text-xs mt-1">{agent.voice_id}</div>
+                            </div>
+                          )}
+                          {agent.language && (
+                            <div>
+                              <span className="text-muted-foreground">Language:</span>
+                              <div className="text-xs mt-1">{agent.language}</div>
+                            </div>
+                          )}
+                          {agent.created_at && (
+                            <div>
+                              <span className="text-muted-foreground">Created:</span>
+                              <div className="text-xs mt-1">{new Date(agent.created_at).toLocaleDateString()}</div>
+                            </div>
+                          )}
+                          {agent.is_published !== undefined && (
+                            <div>
+                              <span className="text-muted-foreground">Published:</span>
+                              <div className="text-xs mt-1">
+                                <Badge variant={agent.is_published ? 'default' : 'outline'} className="text-xs">
+                                  {agent.is_published ? 'Yes' : 'No'}
+                                </Badge>
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">No agents deployed yet</div>
                 )}
               </CardContent>
             </Card>
